@@ -1,4 +1,4 @@
-package com.spark.hakiosk;
+package io.github.ridanuae.hakiosk;
 
 import android.os.Handler;
 import android.webkit.ValueCallback;
@@ -151,7 +151,7 @@ final class DialogProbe {
      * reason: the parameterised version makes javac emit an
      * `onReceiveValue(Object)` bridge, and d8 8.2.2 dies on that bridge with an
      * internal NullPointerException -- "Error in
-     * build/classes/com/spark/hakiosk/DialogProbe$Reply.class". The raw type
+     * build/classes/io/github/ridanuae/hakiosk/DialogProbe$Reply.class". The raw type
      * has no bridge to trip over. Hence the cast below.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})

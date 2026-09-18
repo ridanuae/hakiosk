@@ -151,7 +151,7 @@ gitignored for the same reason a password is: it is yours, do not publish it.
 ### Layout
 
 ```
-app/src/com/spark/hakiosk/
+app/src/io/github/ridanuae/hakiosk/
   MainActivity.java     WebView host, renderer-crash recovery
   Vitals.java           heartbeat, run flag, trim, crash handler  <- read this first
   ScreenSleeper.java    night clock, and resting the page under it

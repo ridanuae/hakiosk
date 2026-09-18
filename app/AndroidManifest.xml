@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.spark.hakiosk"
+    package="io.github.ridanuae.hakiosk"
     android:versionCode="23"
     android:versionName="1.22">
 
@@ -98,7 +98,7 @@
         <!-- Hands the downloaded APK to the installer on API 24+; see ApkProvider. -->
         <provider
             android:name=".ApkProvider"
-            android:authorities="com.spark.hakiosk.apk"
+            android:authorities="io.github.ridanuae.hakiosk.apk"
             android:exported="false"
             android:grantUriPermissions="true" />
     </application>

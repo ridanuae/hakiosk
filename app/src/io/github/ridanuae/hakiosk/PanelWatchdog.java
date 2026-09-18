@@ -1,4 +1,4 @@
-package com.spark.hakiosk;
+package io.github.ridanuae.hakiosk;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -36,7 +36,7 @@ import android.os.SystemClock;
 public class PanelWatchdog extends BroadcastReceiver {
 
     /** Our own alarm, and the only thing this receiver answers to. */
-    private static final String ACTION_RETURN = "com.spark.hakiosk.RETURN_TO_PANEL";
+    private static final String ACTION_RETURN = "io.github.ridanuae.hakiosk.RETURN_TO_PANEL";
 
     /**
      * How long the panel stays off screen before we take it back.

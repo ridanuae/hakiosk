@@ -1,4 +1,4 @@
-package com.spark.hakiosk;
+package io.github.ridanuae.hakiosk;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;

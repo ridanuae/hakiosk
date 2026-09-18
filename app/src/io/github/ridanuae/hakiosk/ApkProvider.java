@@ -1,4 +1,4 @@
-package com.spark.hakiosk;
+package io.github.ridanuae.hakiosk;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
  */
 public class ApkProvider extends ContentProvider {
 
-    static final String AUTHORITY = "com.spark.hakiosk.apk";
+    static final String AUTHORITY = "io.github.ridanuae.hakiosk.apk";
 
     static Uri uriFor(String name) {
         return Uri.parse("content://" + AUTHORITY + "/" + name);

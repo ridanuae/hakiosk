@@ -1,4 +1,4 @@
-package com.spark.hakiosk;
+package io.github.ridanuae.hakiosk;
 
 import android.app.ActivityManager;
 import android.content.ComponentCallbacks2;
@@ -459,7 +459,7 @@ final class Vitals {
             if (frames != null && frames.length > 0) {
                 where = frames[0].toString();
                 for (int i = 0; i < frames.length; i++) {
-                    if (frames[i].getClassName().startsWith("com.spark.hakiosk")) {
+                    if (frames[i].getClassName().startsWith("io.github.ridanuae.hakiosk")) {
                         where = frames[i].getFileName()
                                 + ":" + frames[i].getLineNumber();
                         break;
