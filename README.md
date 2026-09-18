@@ -2,6 +2,11 @@
 
 Turns a Hikvision indoor station into a Home Assistant wall panel.
 
+![HAKiosk running on a DS-KH9 indoor station](docs/panel.jpg)
+
+*Running on the wall. The camera tiles are covered here on purpose -- they were
+live views of a real house.*
+
 The vendor firmware on these intercoms can install an APK but gives you no ADB,
 no logcat and no web port — so this app is built to be readable **from its own
 settings screen**, because that is the only window into it you get.
