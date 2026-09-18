@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  iOS dark system colours. Dark rather than the light grouped style you see in
+  screenshots of Settings on purpose: this panel is on a wall and gets looked
+  at in a dark room at night, where #F2F2F7 is blinding.
+-->
+<resources>
+    <color name="bg">#FF000000</color>
+    <color name="card">#FF1C1C1E</color>
+    <color name="row_pressed">#FF2C2C2E</color>
+    <color name="separator">#FF38383A</color>
+    <color name="label">#FFFFFFFF</color>
+    <color name="secondary">#FF8E8E93</color>
+    <color name="blue">#FF0A84FF</color>
+    <color name="green">#FF30D158</color>
+    <color name="red">#FFFF453A</color>
+    <color name="track_off">#FF39393D</color>
+    <color name="segment_bg">#FF2C2C2E</color>
+    <color name="segment_on">#FF636366</color>
+</resources>

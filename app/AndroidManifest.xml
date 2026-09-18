@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.spark.hakiosk"
+    android:versionCode="23"
+    android:versionName="1.22">
+
+    <uses-sdk android:minSdkVersion="19" android:targetSdkVersion="28" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Settings > Check for updates installs the APK HA already serves. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- Panel is a fixed-size wall device; don't let the store/installer filter on features -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <application
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="false"
+        android:hardwareAccelerated="true">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:icon="@mipmap/ic_launcher"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <!--
+              HOME alongside LAUNCHER so the panel can be chosen as the device's
+              home app in Settings > Choose the home app.
+
+              DO NOT actually select HAKiosk as the home app. Tried on a live
+              panel and it broke the doorbell: the bell rang and the intercom's
+              answer screen never appeared, so the door could not be answered at
+              all. Being the home app is what exempts indoordevice from Android
+              10's background-activity-start block; taking that role away blocks
+              the call screen it raises from its own service. Reverted to
+              indoordevice the same evening.
+
+              The category is left registered only so that Settings > Choose the
+              home app can still be reached and reasoned about, and because
+              removing it would not undo anything. The door call is handled by
+              PanelWatchdog's plain timer instead; see RETURN_AFTER_MS.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings"
+            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+        <!-- Alarm target only; nothing outside the app should be able to poke it. -->
+        <receiver
+            android:name=".PanelWatchdog"
+            android:enabled="true"
+            android:exported="false" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!--
+          Opt-in from Settings, for force-lock only. exported and the system
+          permission are both required: the framework itself binds this.
+        -->
+        <receiver
+            android:name=".AdminReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Hands the downloaded APK to the installer on API 24+; see ApkProvider. -->
+        <provider
+            android:name=".ApkProvider"
+            android:authorities="com.spark.hakiosk.apk"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+    </application>
+</manifest>

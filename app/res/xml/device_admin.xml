@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  One policy, and only one: force-lock, which is what lets ScreenSleeper call
+  lockNow() to turn the screen off on the minute. Nothing here can wipe, reset
+  a password, or read anything.
+-->
+<device-admin xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-policies>
+        <force-lock />
+    </uses-policies>
+</device-admin>

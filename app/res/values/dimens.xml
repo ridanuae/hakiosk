@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="card_radius">10dp</dimen>
+    <dimen name="row_height">44dp</dimen>
+    <dimen name="gutter">16dp</dimen>
+    <dimen name="nav_height">44dp</dimen>
+    <dimen name="text_label">17sp</dimen>
+    <dimen name="text_small">13sp</dimen>
+</resources>

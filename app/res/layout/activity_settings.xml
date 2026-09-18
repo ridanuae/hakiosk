@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  An iOS grouped-list settings screen, hand-built: no appcompat, no preference
+  framework, nothing but framework widgets and a handful of shape drawables.
+  Dark because these panels live on a wall and are read at night.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <!-- Navigation bar -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/nav_height">
+
+        <TextView
+            android:id="@+id/nav_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical"
+            android:paddingLeft="@dimen/gutter"
+            android:paddingRight="@dimen/gutter"
+            android:background="@drawable/row"
+            android:clickable="true"
+            android:text="@string/back_to_panel"
+            android:textColor="@color/blue"
+            android:textSize="@dimen/text_label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/settings"
+            android:textColor="@color/label"
+            android:textSize="@dimen/text_label"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="@color/separator" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/gutter"
+            android:paddingRight="@dimen/gutter"
+            android:paddingBottom="24dp">
+
+            <!-- ============================ PANEL ============================ -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gutter"
+                android:paddingTop="18dp"
+                android:paddingBottom="6dp"
+                android:text="@string/section_panel"
+                android:textColor="@color/secondary"
+                android:textSize="@dimen/text_small" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="6dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/address"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_label" />
+
+                    <EditText
+                        android:id="@+id/url_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:hint="@string/address_hint"
+                        android:inputType="textUri"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:textColor="@color/secondary"
+                        android:textColorHint="@color/separator"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:id="@+id/save_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:background="@drawable/row"
+                    android:clickable="true"
+                    android:text="@string/save_and_reload"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_label" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:id="@+id/reload"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:background="@drawable/row"
+                    android:clickable="true"
+                    android:text="@string/reload_page"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_label" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:id="@+id/clear_cache"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:background="@drawable/row"
+                    android:clickable="true"
+                    android:text="@string/clear_cache"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_label" />
+            </LinearLayout>
+
+            <!-- ========================== BEHAVIOUR ========================== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gutter"
+                android:paddingTop="24dp"
+                android:paddingBottom="6dp"
+                android:text="@string/section_behaviour"
+                android:textColor="@color/secondary"
+                android:textSize="@dimen/text_small" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingRight="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/come_back"
+                            android:textColor="@color/label"
+                            android:textSize="@dimen/text_label" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/come_back_note"
+                            android:textColor="@color/secondary"
+                            android:textSize="@dimen/text_small" />
+                    </LinearLayout>
+
+                    <Switch
+                        android:id="@+id/sw_watchdog"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:switchMinWidth="51dp"
+                        android:thumb="@drawable/switch_thumb"
+                        android:track="@drawable/switch_track" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingRight="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_hide"
+                            android:textColor="@color/label"
+                            android:textSize="@dimen/text_label" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto_hide_note"
+                            android:textColor="@color/secondary"
+                            android:textSize="@dimen/text_small" />
+                    </LinearLayout>
+
+                    <Switch
+                        android:id="@+id/sw_autohide"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:switchMinWidth="51dp"
+                        android:thumb="@drawable/switch_thumb"
+                        android:track="@drawable/switch_track" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="10dp"
+                    android:text="@string/screen_off_after"
+                    android:textColor="@color/label"
+                    android:textSize="@dimen/text_label" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingBottom="8dp"
+                    android:text="@string/screen_off_note"
+                    android:textColor="@color/secondary"
+                    android:textSize="@dimen/text_small" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:layout_marginRight="@dimen/gutter"
+                    android:layout_marginBottom="12dp"
+                    android:padding="2dp"
+                    android:background="@drawable/segment_bar">
+
+                    <TextView
+                        android:id="@+id/seg_0"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/never"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/seg_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/min_1"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/seg_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/min_2"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/seg_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/min_5"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/seg_4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/min_10"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/seg_5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/min_30"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+                </LinearLayout>
+
+                <!-- Hidden while the screen is set never to sleep. -->
+                <LinearLayout
+                    android:id="@+id/window_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:layout_marginLeft="@dimen/gutter"
+                        android:background="@color/separator" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/row_height"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="@dimen/gutter"
+                        android:paddingRight="@dimen/gutter">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/only_between"
+                            android:textColor="@color/label"
+                            android:textSize="@dimen/text_label" />
+
+                        <TextView
+                            android:id="@+id/time_from"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/row"
+                            android:clickable="true"
+                            android:padding="6dp"
+                            android:textColor="@color/blue"
+                            android:textSize="@dimen/text_label" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="4dp"
+                            android:paddingRight="4dp"
+                            android:text="@string/and"
+                            android:textColor="@color/secondary"
+                            android:textSize="@dimen/text_label" />
+
+                        <TextView
+                            android:id="@+id/time_to"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/row"
+                            android:clickable="true"
+                            android:padding="6dp"
+                            android:textColor="@color/blue"
+                            android:textSize="@dimen/text_label" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <!-- Sits with the clock settings because it only does anything
+                     while the clock is up. See ScreenSleeper.hidePage(). -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingRight="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hide_under_clock"
+                            android:textColor="@color/label"
+                            android:textSize="@dimen/text_label" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/hide_under_clock_note"
+                            android:textColor="@color/secondary"
+                            android:textSize="@dimen/text_small" />
+                    </LinearLayout>
+
+                    <Switch
+                        android:id="@+id/sw_hide_under_clock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:switchMinWidth="51dp"
+                        android:thumb="@drawable/switch_thumb"
+                        android:track="@drawable/switch_track" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="10dp"
+                    android:text="@string/volume"
+                    android:textColor="@color/label"
+                    android:textSize="@dimen/text_label" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingBottom="8dp"
+                    android:text="@string/volume_note"
+                    android:textColor="@color/secondary"
+                    android:textSize="@dimen/text_small" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:layout_marginRight="@dimen/gutter"
+                    android:layout_marginBottom="12dp"
+                    android:padding="2dp"
+                    android:background="@drawable/segment_bar">
+
+                    <TextView
+                        android:id="@+id/vol_0"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/vol_leave"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/vol_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/vol_25"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/vol_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/vol_50"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/vol_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/vol_75"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <TextView
+                        android:id="@+id/vol_4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/segment_item"
+                        android:clickable="true"
+                        android:gravity="center"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/vol_100"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ========================= DOOR STATION ========================= -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gutter"
+                android:paddingTop="24dp"
+                android:paddingBottom="6dp"
+                android:text="@string/section_door"
+                android:textColor="@color/secondary"
+                android:textSize="@dimen/text_small" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/door_host"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <EditText
+                        android:id="@+id/door_host"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:hint="@string/door_host_hint"
+                        android:inputType="textUri"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:textColor="@color/secondary"
+                        android:textColorHint="@color/separator"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="6dp"
+                        android:text="@string/door_user"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <EditText
+                        android:id="@+id/door_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:hint="@string/door_user_hint"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:textColor="@color/secondary"
+                        android:textColorHint="@color/separator"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="6dp"
+                        android:text="@string/door_pass"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_small" />
+
+                    <EditText
+                        android:id="@+id/door_pass"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:inputType="textPassword"
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:textColor="@color/secondary"
+                        android:textColorHint="@color/separator"
+                        android:textSize="15sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:id="@+id/door_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:background="@drawable/row"
+                    android:clickable="true"
+                    android:text="@string/door_save"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_label" />
+
+                <TextView
+                    android:id="@+id/door_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingBottom="10dp"
+                    android:text="@string/door_note"
+                    android:textColor="@color/secondary"
+                    android:textSize="@dimen/text_small" />
+            </LinearLayout>
+
+            <!-- ============================= APP ============================= -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gutter"
+                android:paddingTop="24dp"
+                android:paddingBottom="6dp"
+                android:text="@string/section_app"
+                android:textColor="@color/secondary"
+                android:textSize="@dimen/text_small" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/version"
+                        android:textColor="@color/label"
+                        android:textSize="@dimen/text_label" />
+
+                    <TextView
+                        android:id="@+id/version_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/secondary"
+                        android:textSize="@dimen/text_label" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:id="@+id/check_update"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:background="@drawable/row"
+                    android:clickable="true"
+                    android:text="@string/check_updates"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_label" />
+
+                <TextView
+                    android:id="@+id/update_status"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingBottom="10dp"
+                    android:textColor="@color/secondary"
+                    android:textSize="@dimen/text_small"
+                    android:visibility="gone" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:layout_marginLeft="@dimen/gutter"
+                    android:background="@color/separator" />
+
+                <TextView
+                    android:id="@+id/home_app"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/row_height"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:background="@drawable/row"
+                    android:clickable="true"
+                    android:text="@string/home_app"
+                    android:textColor="@color/blue"
+                    android:textSize="@dimen/text_label" />
+
+                <TextView
+                    android:id="@+id/home_app_note"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/gutter"
+                    android:paddingRight="@dimen/gutter"
+                    android:paddingBottom="10dp"
+                    android:text="@string/home_app_note"
+                    android:textColor="@color/secondary"
+                    android:textSize="@dimen/text_small" />
+            </LinearLayout>
+
+            <!-- ============================ INFO ============================= -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/gutter"
+                android:paddingTop="24dp"
+                android:paddingBottom="6dp"
+                android:text="@string/section_info"
+                android:textColor="@color/secondary"
+                android:textSize="@dimen/text_small" />
+
+            <TextView
+                android:id="@+id/info_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/card"
+                android:padding="@dimen/gutter"
+                android:lineSpacingExtra="3dp"
+                android:textColor="@color/secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

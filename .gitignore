@@ -1,0 +1,13 @@
+# Your signing key. Never publish this -- see "Signing" in the README.
+keystore/
+
+# Build intermediates
+build/
+
+# Toolchain, fetched by tools/fetch-tools.sh (large binaries, not ours to ship)
+tools/sysroot/
+tools/debs/
+tools/*.zip
+tools/android.jar
+tools/d8.jar
+tools/apksigner.jar
