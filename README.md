@@ -130,6 +130,10 @@ So since v1.25 the app does not try to fix the leak. It avoids the death:
 - During a door call it waits. It only restarts from the background once the
   app has been hidden longer than any call could last.
 
+The on-screen restart is proven: days of use with restarts and no deaths. The
+background restart is **not proven yet**. On the panels this was written on it
+has never been needed (`0 bg` so far), so treat it as untested.
+
 A restart takes about three seconds of black screen. Settings → INFO counts
 them on the `Self-restart` line, apart from real deaths.
 
@@ -158,7 +162,7 @@ This screen is the whole diagnostic story on hardware with no logs.
 
 ```
 Version: 1.29 (30)
-Last run: ended cleanly
+Last run: installed Sep 23 10:26  v29->v30, before that 9x died, last Sep 20 01:42  free 920M/1954M ...
 Into death: 01:42 f920 a105 g0 n482 | 01:41 f928 a104 g0 n482 | ...
 Memory: free 608M/1954M lowram  app 284M  heap 2M/128M
 App: pss 283M java 3M native 148M gfx 0M code 65M other 17M swap 38M

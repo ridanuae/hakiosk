@@ -348,8 +348,9 @@ final class Vitals {
      *
      * getTotalPss() was the wrong number to have trusted alone. Reinstalling on
      * one panel sent free memory from 376M to 1249M the moment the old process
-     * died, while that process had been reporting `app 108M`. Something held ~870M that PSS never counted, and it
-     * went away with our process, so it was ours.
+     * died, while that process had been reporting `app 108M`. Something held
+     * ~870M that PSS never counted, and it went away with our process, so it
+     * was ours.
      *
      * getMemoryStat() is the framework's own breakdown and covers the two
      * categories PSS leaves out:

@@ -153,21 +153,20 @@ final class Prefs {
      *
      * v1.27 tags a background restart "(bg)" in KEY_RESTART_NOTE, which is the
      * only evidence its background path has ever fired. But the note holds one
-     * restart, the newest, and one panel had run up fifteen of them: the ten before the last were a number with nothing attached, so
-     * the question v1.27 exists to answer could not be answered by reading the
+     * restart, the newest, and one panel had run up fifteen of them: the
+     * fourteen before the last were a number with nothing attached, so the
+     * question v1.27 exists to answer could not be answered by reading the
      * screen. A count survives what a note does not -- the same reason
      * KEY_DEATH_COUNT and KEY_RECREATE_COUNT are counts.
      *
      * A zero here is a result, not a blank: it says every restart so far was
      * taken while the panel was our own screen.
      *
-     * **The two counts do not start together, and the line reads wrong if you
-     * forget it.** KEY_RESTART_COUNT has been running since v1.25 and survives
-     * an update; this one begins at nought on the panel that installs v1.28. So
-     * the first morning after the update says something like `15x, 0 bg`, and
-     * that means fifteen restarts since v1.25 of which an unknown number were
-     * background -- not fifteen foreground ones. Only restarts from the install
-     * onwards are split. Give it a week before reading anything into the ratio.
+     * On a fresh install both counts start at zero together. Only a panel that
+     * ran v1.25 to v1.27 first sees them disagree: KEY_RESTART_COUNT survives
+     * the update and this one starts at nought, so a line like `15x, 0 bg`
+     * there means fifteen restarts of which an unknown number were background
+     * -- not fifteen foreground ones.
      */
     static final String KEY_RESTART_BG_COUNT = "restart_bg_count";
 
