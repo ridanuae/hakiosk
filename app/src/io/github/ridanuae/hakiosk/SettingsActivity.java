@@ -97,6 +97,7 @@ public class SettingsActivity extends Activity implements Updater.Callback {
         findViewById(R.id.reload).setOnClickListener(tap);
         findViewById(R.id.clear_cache).setOnClickListener(tap);
         findViewById(R.id.check_update).setOnClickListener(tap);
+        findViewById(R.id.restart_now).setOnClickListener(tap);
         findViewById(R.id.home_app).setOnClickListener(tap);
         findViewById(R.id.door_save).setOnClickListener(tap);
         timeFrom.setOnClickListener(tap);
@@ -159,6 +160,10 @@ public class SettingsActivity extends Activity implements Updater.Callback {
             pickTime(true);
         } else if (id == R.id.time_to) {
             pickTime(false);
+        } else if (id == R.id.restart_now) {
+            // Straight out. The relaunch alarms are already set by the time the
+            // process goes, so there is nothing to tidy up here.
+            MemoryGuard.restartNow(this);
         } else if (id == R.id.check_update) {
             checkOrInstall();
         } else if (id == R.id.home_app) {
@@ -360,6 +365,7 @@ public class SettingsActivity extends Activity implements Updater.Callback {
     private String infoText() {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         return "IP: " + ipAddress()
+                + "\nVersion: " + versionText()
                 + "\nScreen: " + metrics.widthPixels + "x" + metrics.heightPixels
                 + " @" + metrics.density + "x"
                 + "\nAndroid: " + android.os.Build.VERSION.RELEASE
@@ -378,7 +384,17 @@ public class SettingsActivity extends Activity implements Updater.Callback {
                 + "\nLast run: " + Vitals.lastRunText(this)
                 + beatsLine()
                 + "\nMemory: " + Vitals.memoryText(this)
+                // Since v1.23. "Memory:" says how much went; this says what
+                // kind, which is the only way to name an owner that is not us.
+                // Since v1.24. PSS alone under-reported this app eightfold;
+                // "gfx" and "swap" are the two it was missing. See appMemText().
+                + "\nApp: " + Vitals.appMemText()
+                + "\nSys: " + Vitals.sysMemText()
                 + "\nPressure: " + Vitals.trimText(this)
+                // Since v1.25. A restart here with no matching death above is
+                // MemoryGuard working: we left before Android could throw us out.
+                // The "N bg" counts the ones taken while the app was hidden.
+                + "\nSelf-restart: " + MemoryGuard.restartText(this)
                 + guardsLines()
                 + "\n\nUA: " + Prefs.of(this).getString(Prefs.KEY_UA, "(not read yet)");
     }
@@ -431,7 +447,7 @@ public class SettingsActivity extends Activity implements Updater.Callback {
     }
 
     /** NetworkInterface rather than WifiManager: these panels may be wired. */
-    private String ipAddress() {
+    static String ipAddress() {
         try {
             Enumeration<NetworkInterface> interfaces =
                     NetworkInterface.getNetworkInterfaces();

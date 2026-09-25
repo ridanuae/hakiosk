@@ -61,4 +61,5 @@
     <string name="checking">Checking…</string>
     <string name="up_to_date">You have the newest version.</string>
     <string name="all_day">all day</string>
+    <string name="restart_now">Restart the app now</string>
 </resources>

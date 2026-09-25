@@ -25,6 +25,12 @@ anything from Android 4.4 up, but only that one model has been used in anger.
   call, this brings the panel back afterwards. Optionally it asks the outdoor
   station directly (ISAPI) so it returns within seconds instead of on a timer.
 - **Survives a WebView renderer crash** instead of dying with it.
+- **Restarts itself before Android kills it.** These panels slowly run out of
+  memory. The app notices and restarts on its own, at a quiet moment, and is
+  back on screen in a few seconds. See [Memory](#memory-and-why-it-restarts-itself).
+- **Tells Home Assistant when a camera is open** (optional), so a motion popup
+  does not take the screen from somebody who is already looking. See
+  [Camera window](#camera-window-optional).
 - **Records why it died.** Heartbeat, memory readings, trim warnings, crash
   handler, all on Settings → INFO. On hardware with no logs, this is the log.
 - **Self-update** from a URL, since reinstalling by hand on these is tedious.
@@ -86,6 +92,7 @@ That's it. Everything below is optional.
 | **Only between** | Limits the clock to a time window. A window may cross midnight. |
 | **Rest the page under the clock** | Stops *drawing* the dashboard while the clock covers it, to use less memory overnight. The page keeps running, so HA can still push a camera to the panel and the clock still steps aside for it. Default on. |
 | **Sound volume** | Media volume for a camera opened on the panel. `Leave` keeps whatever the panel is set to. |
+| **Restart the app now** | Does the same restart the memory guard does, on demand. The panel should be back within a few seconds; if it is not, the guard will not bring it back either. |
 
 ### Door station (optional)
 
@@ -101,15 +108,63 @@ bake a password into a build.
 
 ---
 
+## Memory, and why it restarts itself
+
+On these panels free memory drains while the dashboard is up — faster with a
+camera on screen — until Android kills the app, usually in the small hours. The
+panel is then stuck on the vendor launcher until somebody touches it.
+
+The memory is not held anywhere the app can measure: not the Java heap, not
+PSS, not the graphics counters. It behaves like hardware video buffers that a
+driver holds for the process and frees only when that process ends. A page
+reload frees nothing. Ending the process frees all of it (~870 MB after a day).
+
+So since v1.25 the app does not try to fix the leak. It avoids the death:
+
+- Below **400 MB** free, it restarts once the night clock is up (nobody is
+  looking).
+- Below **250 MB** free, it restarts even if somebody is, because a short
+  interruption beats a dead panel.
+- Never more than once every **two hours**, so a restart that does not help
+  cannot turn into a loop.
+- During a door call it waits. It only restarts from the background once the
+  app has been hidden longer than any call could last.
+
+A restart takes about three seconds of black screen. Settings → INFO counts
+them on the `Self-restart` line, apart from real deaths.
+
+---
+
+## Camera window (optional)
+
+Since v1.29 the app tells Home Assistant whether a camera (any more-info
+dialog) is open on the panel. It checks every five seconds and posts to a
+webhook on the same Home Assistant the dashboard is on: once on every change,
+and again every five minutes. Home Assistant cannot see this by itself.
+
+Use it to stop an automation from putting a popup over a camera somebody opened
+by hand. The panel names itself by the `?BrowserID=` in its dashboard address,
+so give each panel one, e.g. `http://homeassistant.local:8123/lovelace/0?BrowserID=panel-1`.
+
+The Home Assistant side is in [docs/camera-window.yaml](docs/camera-window.yaml):
+one timer per panel and one automation. If you do not set it up, the posts go
+nowhere and nothing else changes.
+
+---
+
 ## Settings → INFO, and how to read it
 
 This screen is the whole diagnostic story on hardware with no logs.
 
 ```
-Last run: 2x died, last Sep 18 04:04  free 270M/1954M lowram  app 214M  heap 2M/128M
-Into death: 04:04 f270 a214 | 04:03 f281 a213 | 04:02 f1150 a210
-Memory:   free 1115M/1954M lowram  app 113M  heap 1M/128M
+Version: 1.29 (30)
+Last run: ended cleanly
+Into death: 01:42 f920 a105 g0 n482 | 01:41 f928 a104 g0 n482 | ...
+Memory: free 608M/1954M lowram  app 284M  heap 2M/128M
+App: pss 283M java 3M native 148M gfx 0M code 65M other 17M swap 38M
+Sys: anon 565M  cache 561M  shmem 91M  slab 203M  swap 344M/977M
 Pressure: none this run
+Self-restart: 15x, 0 bg, last Sep 23 01:07  free 400M
 Also: renderer 0, crash 0, rebuilt 0
 ```
 
@@ -117,21 +172,32 @@ Also: renderer 0, crash 0, rebuilt 0
   death, with the memory reading from the last minute the app was alive. That
   reading cannot be recovered any other way.
 - **`Into death`** — the last few heartbeats before that death, newest first.
-  `f` is free memory, `a` is how much of it this app was holding. `a` rising as
-  `f` falls means the app is the problem; `a` flat while `f` falls means
-  something else on the device is.
+  `f` is free memory, `a` is how much of it this app was holding, `g` graphics
+  memory, `n` the system's anonymous memory. `a` rising as `f` falls means the
+  app is the problem; `a` flat while `f` falls means something else on the
+  device is.
 - **`app`** — the process's total PSS. Watch this one, not `heap`: a WebView
   keeps almost everything it holds outside the Java heap, so `heap` can sit at
   2M while the process grows by hundreds of megabytes.
-- **`Pressure`** — the worst `onTrimMemory` level this run. `RUN_CRITICAL(15)` is
-  Android's last warning before it starts killing processes.
+- **`App`** — this process as Android itself counts it, split into Java heap,
+  native heap, graphics, code and swap. PSS alone misses graphics and swap.
+- **`Sys`** — the device's `/proc/meminfo`: what *kind* of memory went. If these
+  add up to much less than what disappeared, it is in hardware buffers that
+  no counter shows.
+- **`Pressure`** — the worst `onTrimMemory` level this run, kept separately for
+  while the app is on screen (`RUN_CRITICAL(15)` is Android's last warning before
+  it starts killing) and while it is hidden (`bg`). `hidden` is only the time the
+  app first went to the background — not a memory warning.
+- **`Self-restart`** — restarts the memory guard chose, how many of those were
+  from the background (`bg`), and the free memory at the last one. A restart
+  with no matching death is the guard working.
 - **`Also`** — the three failures that are *not* happening. It expands into full
   lines the moment any of them is not zero.
 - **`UA`** — the WebView version, which decides what your dashboard can use.
   These panels have no web port, so this screen is the only place to read it.
 
-Note that **installing the APK counts as a death**: the install kills the running
-process, which cannot close its own run flag. Read the timestamp, not the count.
+Installing a new APK does **not** count as a death since v1.27. `Last run` shows
+`installed ... v29->v30` instead, and keeps the last real death after it.
 
 ---
 
@@ -159,6 +225,8 @@ gitignored for the same reason a password is: it is yours, do not publish it.
 app/src/io/github/ridanuae/hakiosk/
   MainActivity.java     WebView host, renderer-crash recovery
   Vitals.java           heartbeat, run flag, trim, crash handler  <- read this first
+  MemoryGuard.java      restarts the app before memory runs out
+  WindowWatch.java      tells HA when a camera window is open
   ScreenSleeper.java    night clock, and resting the page under it
   DialogProbe.java      asks the page whether a camera dialog is open
   PanelWatchdog.java    coming back after a door call

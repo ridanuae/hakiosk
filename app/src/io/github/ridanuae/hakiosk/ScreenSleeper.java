@@ -119,6 +119,31 @@ final class ScreenSleeper {
         onUserActivity();
     }
 
+    /**
+     * One character for the heartbeat, and the assumption this whole
+     * investigation kept resting on without ever measuring it.
+     *
+     *   R  clock up and the page not being drawn -- "resting"
+     *   C  clock up but the page still drawn, i.e. the setting is off
+     *   D  a camera or dialog is holding the clock off
+     *   -  ordinary: dashboard on screen
+     *
+     * If free memory falls just as fast on R minutes as on - minutes, then the
+     * drain has nothing to do with the page being drawn, and three days of
+     * reasoning from the outside was wrong. That is worth one character.
+     */
+    char stateChar() {
+        if (clock.showing()) {
+            return hideUnderClock ? 'R' : 'C';
+        }
+        return dialogHeldOff ? 'D' : '-';
+    }
+
+    /** True when nobody is looking: the clock is up. See MemoryGuard.check(). */
+    boolean idle() {
+        return clock.showing();
+    }
+
     /** Every touch anywhere on the panel takes the clock away and restarts it. */
     void onUserActivity() {
         dialogHeldOff = false;

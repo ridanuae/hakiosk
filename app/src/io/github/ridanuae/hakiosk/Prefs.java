@@ -72,8 +72,54 @@ final class Prefs {
     static final String KEY_ALIVE_NOTE = "alive_note";
     static final String KEY_LAST_DEATH = "last_death";
     static final String KEY_DEATH_COUNT = "death_count";
-    static final String KEY_TRIM_WORST = "trim_worst";
-    static final String KEY_TRIM_NOTE = "trim_note";
+
+    /**
+     * Which versionCode last wrote this file -- v1.27, and the fix for a hole
+     * that had been quietly wrecking the evidence since v1.21.
+     *
+     * Installing an APK replaces the process without letting it close
+     * KEY_RUN_OPEN, so every single update through the vendor's download flow
+     * was filed as a death: it inflated KEY_DEATH_COUNT and, far worse,
+     * overwrote KEY_LAST_DEATH and KEY_DEATH_BEATS with the healthy minutes
+     * either side of the install. It turned a panel with a perfect 21-hour
+     * record into `9x died ... free 920M` -- 920M being three times any real
+     * kill, and the giveaway.
+     *
+     * Comparing the stored code against the running one separates the two: same
+     * code with the flag open is a kill, a different one is an install. Written
+     * on every startRun, so a run that is killed still leaves it matching.
+     *
+     * Note what a *missing* value means, because it is not "unknown": these
+     * preferences survive an update and are wiped by an uninstall, so a file
+     * that has other keys but no version was written by a build older than
+     * v1.27 -- which is an install too, and the first one this can catch.
+     */
+    static final String KEY_VERSION = "version_code";
+
+    /** When the last install landed, and what it replaced. Diagnostic only. */
+    static final String KEY_INSTALL_NOTE = "install_note";
+
+    /**
+     * True when the previous run ended by being replaced rather than killed.
+     * Kept as its own flag rather than inferred from timestamps: the death note
+     * is a formatted line, not a date, and re-parsing it to compare would be a
+     * second way to get the same question wrong.
+     */
+    static final String KEY_LAST_WAS_INSTALL = "last_was_install";
+    /**
+     * onTrimMemory, split three ways since v1.23. Android's levels look like one
+     * scale and are not: see Vitals.onTrim(). v1.22 kept a single maximum and
+     * UI_HIDDEN(20) -- which is a state change, not memory pressure -- silently
+     * masked RUNNING_CRITICAL(15) on two test panels for a whole night.
+     *
+     * KEY_TRIM_RUN is pressure seen while visible, KEY_TRIM_BG pressure seen
+     * while hidden, KEY_HIDDEN_NOTE only the time we were first backgrounded.
+     */
+    static final String KEY_TRIM_RUN = "trim_run";
+    static final String KEY_TRIM_RUN_NOTE = "trim_run_note";
+    static final String KEY_TRIM_BG = "trim_bg";
+    static final String KEY_TRIM_BG_NOTE = "trim_bg_note";
+    static final String KEY_HIDDEN_NOTE = "hidden_note";
 
     /**
      * The last few heartbeats of this run, newest first. One reading says how
@@ -92,6 +138,38 @@ final class Prefs {
     static final String KEY_CRASH_COUNT = "crash_count";
     static final String KEY_RECREATE_COUNT = "recreate_count";
     static final String KEY_RECREATE_NOTE = "recreate_note";
+
+    /**
+     * MemoryGuard's own record, kept apart from the death counter on purpose: a
+     * restart we chose is not a death, and mixing them would wreck the evidence
+     * this whole instrument exists to produce.
+     */
+    static final String KEY_RESTART_COUNT = "restart_count";
+    static final String KEY_RESTART_NOTE = "restart_note";
+    static final String KEY_RESTART_AT = "restart_at";
+
+    /**
+     * Background restarts alone -- v1.28, and the reading that asked for it.
+     *
+     * v1.27 tags a background restart "(bg)" in KEY_RESTART_NOTE, which is the
+     * only evidence its background path has ever fired. But the note holds one
+     * restart, the newest, and one panel had run up fifteen of them: the ten before the last were a number with nothing attached, so
+     * the question v1.27 exists to answer could not be answered by reading the
+     * screen. A count survives what a note does not -- the same reason
+     * KEY_DEATH_COUNT and KEY_RECREATE_COUNT are counts.
+     *
+     * A zero here is a result, not a blank: it says every restart so far was
+     * taken while the panel was our own screen.
+     *
+     * **The two counts do not start together, and the line reads wrong if you
+     * forget it.** KEY_RESTART_COUNT has been running since v1.25 and survives
+     * an update; this one begins at nought on the panel that installs v1.28. So
+     * the first morning after the update says something like `15x, 0 bg`, and
+     * that means fifteen restarts since v1.25 of which an unknown number were
+     * background -- not fifteen foreground ones. Only restarts from the install
+     * onwards are split. Give it a week before reading anything into the ratio.
+     */
+    static final String KEY_RESTART_BG_COUNT = "restart_bg_count";
 
     /**
      * Door station, for DoorStation.status(). Editable on the settings screen;

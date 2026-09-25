@@ -39,6 +39,15 @@ public class PanelWatchdog extends BroadcastReceiver {
     private static final String ACTION_RETURN = "io.github.ridanuae.hakiosk.RETURN_TO_PANEL";
 
     /**
+     * MemoryGuard's way back after it exits the process. Deliberately its own
+     * action rather than a short ACTION_RETURN: that path checks the watchdog
+     * setting and the door station, and neither has anything to do with coming
+     * back from a restart we chose. A panel that stayed dark because the user
+     * had turned the door-call watchdog off would be a bad way to learn this.
+     */
+    private static final String ACTION_RELAUNCH = "io.github.ridanuae.hakiosk.RELAUNCH";
+
+    /**
      * How long the panel stays off screen before we take it back.
      *
      * A plain timer, and deliberately the only rule left. v1.2 to v1.16 all
@@ -58,8 +67,12 @@ public class PanelWatchdog extends BroadcastReceiver {
      * would cover
      * a call that is still running, which is the bug that started all of this;
      * too long and the panel sits on the vendor launcher after a quick call.
+     *
+     * Not private since v1.27: MemoryGuard derives its own background grace
+     * period from this and POLL_GIVE_UP_MS rather than guessing a second
+     * "how long can a call last?" constant that could drift away from these.
      */
-    private static final long RETURN_AFTER_MS = 4 * 60 * 1000L;
+    static final long RETURN_AFTER_MS = 4 * 60 * 1000L;
 
     /** Deadline for the fallback timer, carried on the alarm. */
     private static final String EXTRA_DEADLINE = "deadline";
@@ -75,8 +88,10 @@ public class PanelWatchdog extends BroadcastReceiver {
      * -- wedged, or a handset left off the hook -- we stop believing it and come
      * back anyway, rather than repeat the v1.16 bug of waiting for a condition
      * that never clears.
+     *
+     * Not private since v1.27 -- see RETURN_AFTER_MS.
      */
-    private static final long POLL_GIVE_UP_MS = 15 * 60 * 1000L;
+    static final long POLL_GIVE_UP_MS = 15 * 60 * 1000L;
 
     /**
      * Set when the app itself is about to open another screen -- Settings,
@@ -118,8 +133,59 @@ public class PanelWatchdog extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Two alarms, not one: the first is the restart, the second is insurance.
+     * If the 3-second alarm is missed or refused, the panel would sit dark until
+     * somebody touched it -- worse than the death this is preventing. The backup
+     * lands on an app that is normally already running, where REORDER_TO_FRONT
+     * costs nothing.
+     */
+    static void relaunchIn(Context context, long delayMs) {
+        // Three alarms by two different mechanisms, because this one fires into
+        // a process that no longer exists and there is no way to test the
+        // failure from here -- the panel has no ADB and no logcat.
+        //
+        // The broadcast route is the one already proven on this hardware: it is
+        // how the panel comes back after a door call. But that fires while our
+        // process is still alive, and Android 10 restricts starting an activity
+        // from the background, so a cold start may be refused where a warm one
+        // was not. The middle alarm is therefore a PendingIntent.getActivity()
+        // -- AlarmManager launching the activity itself, a different path
+        // through the same restriction.
+        //
+        // If all three are refused the panel sits dark until somebody touches
+        // it, which is exactly where it is today when Android kills us. The
+        // downside is bounded by the status quo; the upside is it stops dying.
+        scheduleRelaunch(context, delayMs, 1);
+        scheduleActivityRelaunch(context, delayMs + 2000L);
+        scheduleRelaunch(context, delayMs + 60000L, 2);
+    }
+
+    private static void scheduleActivityRelaunch(Context context, long delayMs) {
+        Intent front = new Intent(context, MainActivity.class);
+        front.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        PendingIntent pending = PendingIntent.getActivity(context, 3, front,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        alarms(context).setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + delayMs, pending);
+    }
+
+    private static void scheduleRelaunch(Context context, long delayMs, int code) {
+        Intent intent = new Intent(context, PanelWatchdog.class);
+        intent.setAction(ACTION_RELAUNCH);
+        PendingIntent pending = PendingIntent.getBroadcast(context, code, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        alarms(context).setExact(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + delayMs, pending);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (ACTION_RELAUNCH.equals(intent.getAction())) {
+            toFront(context);
+            return;
+        }
         if (!ACTION_RETURN.equals(intent.getAction())) {
             return;
         }

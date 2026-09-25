@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -49,6 +50,27 @@ public class MainActivity extends Activity implements PanelHeader.Listener {
     /** One instance, re-posted: see startHeartbeat(). */
     private final BeatTask beatTask = new BeatTask(this);
 
+    /** Asks the page about the camera window and tells HA. See WindowWatch. */
+    private WindowWatch windowWatch;
+
+    /**
+     * True between onStart and onStop. MemoryGuard reads it to decide which of
+     * its two paths applies: while a door call has the screen we are
+     * backgrounded, and coming back mid-call is the exact bug v1.13 to v1.19
+     * were spent on.
+     */
+    private boolean foreground;
+
+    /**
+     * elapsedRealtime at the last onStop, or 0 while we are on screen. Since
+     * v1.27: MemoryGuard may now restart from the background, but only once we
+     * have been hidden far longer than any door call -- so it needs to know
+     * *how long*, not merely that we are. elapsedRealtime and not
+     * currentTimeMillis, because this is a duration and these panels take their
+     * clock from a router that has handed out the wrong time before.
+     */
+    private long hiddenAt;
+
     /** Settings asks for these; the WebView they act on lives here. */
     static void requestReload(boolean clearCache) {
         pendingReload = true;
@@ -89,6 +111,9 @@ public class MainActivity extends Activity implements PanelHeader.Listener {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
         sleeper = new ScreenSleeper(this, clock, web);
+        // A second reader of the same probe, on a slower beat, so Home
+        // Assistant can be told not to take a screen somebody is using.
+        windowWatch = new WindowWatch(this, web, handler);
 
         setContentView(root);
         web.loadUrl(freshUrl());
@@ -107,8 +132,19 @@ public class MainActivity extends Activity implements PanelHeader.Listener {
     }
 
     void onHeartbeat() {
-        Vitals.beat(this);
+        Vitals.beat(this, sleeper.stateChar());
+        MemoryGuard.check(this, sleeper.idle());
         startHeartbeat();
+    }
+
+    /** True while our activity is the one on screen. For MemoryGuard. */
+    boolean onScreen() {
+        return foreground;
+    }
+
+    /** How long we have been off screen, or 0 while we are on it. */
+    long hiddenMs() {
+        return hiddenAt == 0L ? 0L : SystemClock.elapsedRealtime() - hiddenAt;
     }
 
     /**
@@ -185,6 +221,7 @@ public class MainActivity extends Activity implements PanelHeader.Listener {
 
         sleeper.rebind(web);
         sleeper.applyPrefs();
+        windowWatch.rebind(web);
         web.loadUrl(freshUrl());
         // removeCallbacksAndMessages above took the heartbeat with it.
         startHeartbeat();
@@ -204,7 +241,10 @@ public class MainActivity extends Activity implements PanelHeader.Listener {
     @Override
     protected void onStart() {
         super.onStart();
+        foreground = true;
+        hiddenAt = 0L;
         web.onResume();
+        windowWatch.start();
         PanelWatchdog.cancel(this);
         header.setAutoHide(Prefs.autoHideHeader(this));
         sleeper.applyPrefs();
@@ -230,12 +270,16 @@ public class MainActivity extends Activity implements PanelHeader.Listener {
     @Override
     protected void onStop() {
         super.onStop();
+        foreground = false;
+        hiddenAt = SystemClock.elapsedRealtime();
         // Pausing the WebView stops it decoding a camera stream nobody is
         // watching, and keeps its audio out of the watchdog's "is a call still
         // up?" check, which would otherwise never say no.
         web.onPause();
         header.stopTimer();
         sleeper.stop();
+        // Tells HA the window is gone as it goes: see WindowWatch.stop().
+        windowWatch.stop();
 
         // Back at the root is the deliberate way out; don't fight it.
         if (!isFinishing()) {

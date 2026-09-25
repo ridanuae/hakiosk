@@ -1,0 +1,95 @@
+# "Is a camera window open on that panel right now?" -- the Home Assistant side.
+#
+# Since v1.29 the app tells Home Assistant when somebody has a camera (or any
+# more-info dialog) open on a panel, so your popup automations can leave that
+# screen alone instead of taking it away mid-look. Home Assistant cannot see
+# this on its own: browser_mod's path sensor is `window.location.pathname`,
+# which does not change when a dialog opens.
+#
+# The app POSTs to /api/webhook/hakiosk-panel-window on the same Home Assistant
+# its dashboard address points at:
+#
+#   {"browser": "panel-1", "ip": "192.168.1.50", "open": true}
+#
+# on every change, and again every five minutes while nothing changes.
+# `browser` is the `?BrowserID=` from the panel's dashboard address. A panel
+# with no BrowserID in its address sends its IP instead, and is ignored below.
+#
+# Setup
+# -----
+# 1. One timer per panel, named after its browser id with `-` turned into `_`:
+#
+#      timer:
+#        panel_1_camera_window:
+#          name: Panel 1 camera window
+#
+# 2. Add the automation below to automations.yaml.
+#
+# 3. In your popup automations, skip a panel whose timer is `active`:
+#
+#      - condition: not
+#        conditions:
+#        - condition: state
+#          entity_id: timer.panel_1_camera_window
+#          state: active
+#
+# Why a timer and not an input_boolean
+# ------------------------------------
+# The flag has to expire on its own. A panel can be unplugged, restart itself,
+# or be taken over by a door call mid-look, and a flag left `on` would block
+# every popup on that panel *forever* -- a failure that looks exactly like the
+# automations being broken, with nothing anywhere to say why.
+#
+# An input_boolean cannot expire itself, and a state trigger with
+# `for: '00:12:00'` does not work either: the five-minute re-assert calls
+# turn_on on an entity that is already on, which is not a state change, so
+# `for` keeps counting and would switch the flag off under a panel that never
+# stopped saying "open".
+#
+# A timer has the expiry built in. `timer.start` on a running timer restarts it,
+# so each re-assert pushes the deadline out; twelve minutes covers two missed
+# re-asserts. Running means open, idle means closed, and a panel that vanishes
+# is treated as closed twelve minutes later.
+
+- id: hakiosk_panel_window
+  alias: HAKiosk - camera window
+  description: >-
+    Keeps timer.<browser id>_camera_window running while that panel has a
+    more-info dialog open. Fed by HAKiosk v1.29+.
+  triggers:
+  - trigger: webhook
+    webhook_id: hakiosk-panel-window
+    allowed_methods:
+    - POST
+    local_only: true
+  conditions: []
+  actions:
+  - variables:
+      # `(trigger.json | default({}))` before every lookup: a post with no body
+      # leaves trigger.json undefined, and reaching through an undefined raises
+      # inside the template, which HA swallows -- the automation fires and
+      # writes nothing.
+      flag: >-
+        timer.{{ (trigger.json | default({})).get('browser', 'unknown') | replace('-', '_') }}_camera_window
+      is_open: >-
+        {{ (trigger.json | default({})).get('open', false) | bool(false) }}
+  - condition: template
+    # A panel with no timer is simply not tracked. Nothing is created for it.
+    value_template: "{{ states(flag) not in ('unknown', 'unavailable') }}"
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: "{{ is_open }}"
+      sequence:
+      # Restarts a running timer, which is exactly what the re-assert is for.
+      - action: timer.start
+        target:
+          entity_id: "{{ flag }}"
+        data:
+          duration: "00:12:00"
+    default:
+    - action: timer.cancel
+      target:
+        entity_id: "{{ flag }}"
+  mode: queued
+  max: 10
